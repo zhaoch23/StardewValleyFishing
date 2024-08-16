@@ -1,0 +1,74 @@
+fishing:
+  options:
+    startX: w*0 
+    startY: h*0
+    startZ: '10'
+    data: | 
+      {
+        "fishing_bar_height": 132,
+        "progress_bar_offset": 13
+      }
+    scriptjs: |
+      @import fishing.js;
+
+  canvas:
+    type: canvas
+    locationX: w / 2
+    locationY: h / 2 - %t_h_textures/fishing/bg.png% / 2
+    
+    relativeParts:
+      bg:
+        type: texture
+        locationY: 0
+        locationZ: 0
+        path: local<->textures/fishing/bg.png
+        width: '%t_w_textures/fishing/bg.png%'
+        height: '%t_h_textures/fishing/bg.png%'
+        startU: 0
+        startV: 0
+        endU: '%t_w_textures/fishing/bg.png%'
+        endV: '%t_h_textures/fishing/bg.png%'
+
+      progress_bar:
+        type: color
+        locationX: 31
+        locationY: 0 # This is dynamically set = fishing_bar_height + progress_bar_offset
+        locationZ: 1
+        width: 4
+        height: 1
+        color: 0xff9be818
+      canvas_fishing_bar:
+        type: canvas
+        locationX: 16 # Change this to move the fishing bar
+        locationY: 3
+        locationZ: 1
+        relativeParts:
+          rod:
+            type: texture
+            locationX: 0 # Dont change this
+            locationY: 0 # Dont change this
+            path: local<->textures/fishing/bar.png
+            width: 9
+            height: 9
+          fish:
+            type: texture
+            path: local<->textures/fishing/fish.png
+            locationX: 0 # Dont change this
+            locationY: 0 # Dont change this
+            locationZ: 2
+            width: 9
+            height: 9
+            startU: 0
+            startV: 0
+            endU: '%t_w_textures/fishing/fish.png%/2'
+            endV: '%t_h_textures/fishing/fish.png%'
+
+          texture_box: # TODO
+            type: texture
+            enable: false
+            path: local<->textures/fishing/box.png
+            locationX: 0
+            locationY: 0
+            locationZ: 3
+            width: 9
+            height: 9

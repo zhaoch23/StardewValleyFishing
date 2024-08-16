@@ -1,0 +1,17 @@
+name: StardewValleyFishing
+version: '${version}'
+main: com.zhaoch23.stardewvalleyfishing.StardewValleyFishing
+
+depend:
+    - GermPlugin
+
+softdepend:
+    - MythicMobs
+
+commands:
+    stardewvalleyfishing:
+        description: Stardew Valley Fishing Command
+        usage: /<command> [reload]
+        aliases: [svf]
+        permission: stardewvalleyfishing.command
+        permission-message: You do not have permission to use this command.
