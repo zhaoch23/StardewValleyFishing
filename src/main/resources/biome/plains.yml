@@ -25,6 +25,7 @@ example_fish:
       # 1: 向下
       # -1: 向上
       behavior_pattern:
-        - 0
-        - 1
         - -1
+        - -1
+        - 1
+        - 0
