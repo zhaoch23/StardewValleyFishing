@@ -1,7 +1,5 @@
 package com.zhaoch23.stardewvalleyfishing;
 
-import com.germ.germplugin.api.dynamic.gui.GermGuiScreen;
-import com.germ.germplugin.api.dynamic.gui.IGuiScreenHandler;
 import com.zhaoch23.stardewvalleyfishing.api.FishDTO;
 import com.zhaoch23.stardewvalleyfishing.api.FishingRodDTO;
 import com.zhaoch23.stardewvalleyfishing.api.event.StardewValleyPlayerFishingEvent;
@@ -9,9 +7,9 @@ import com.zhaoch23.stardewvalleyfishing.api.event.StardewValleyPlayerStartFishi
 import com.zhaoch23.stardewvalleyfishing.common.DefaultPlayerFishingPower;
 import com.zhaoch23.stardewvalleyfishing.common.StardewValleyFish;
 import net.minecraft.server.v1_12_R1.EntityFishingHook;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftFish;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -21,33 +19,39 @@ import org.bukkit.inventory.PlayerInventory;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.List;
 
 public class FishingManager implements Listener {
 
 
-    public void setFishingTime(EntityFishingHook hook, int time) {
+    public static void setFishingTime(EntityFishingHook hook, int time) {
         // Set fishing time
-
         Field waitTime = null;
+        Field waitTime2 = null;
 
         try {
             waitTime = EntityFishingHook.class.getDeclaredField("h");
+            waitTime2 = EntityFishingHook.class.getDeclaredField("g");
 
         } catch (NoSuchFieldException | SecurityException e) {
             e.printStackTrace();
+            StardewValleyFishing.logger().severe("Field not found in EntityFishingHook. " +
+                    "Are you using a Forge server?");
+            return;
         }
 
-        assert waitTime != null;
         waitTime.setAccessible(true);
+        waitTime2.setAccessible(true);
 
         try {
-            waitTime.setInt(hook, 100);
+            waitTime.setInt(hook, time);
+            waitTime2.setInt(hook, 0);
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
+            StardewValleyFishing.logger().severe("Failed to set fishing time in EntityFishingHook. " +
+                    "Are you using a Forge server?");
         }
+
     }
 
     public void stateFishing(PlayerFishEvent event) {
@@ -59,11 +63,14 @@ public class FishingManager implements Listener {
             return;
         }
 
+        int waitingTime = (int) (customEvent.getBiteTimeMin() +
+                Math.random() * (customEvent.getBiteTimeMax() - customEvent.getBiteTimeMin()));
+        setFishingTime(((CraftFish) event.getHook()).getHandle(), waitingTime);
 
-        setFishingTime(((CraftFish) event.getHook()).getHandle(),
-                (int) (customEvent.getBiteTimeMin() +
-                        Math.random() * (customEvent.getBiteTimeMax() - customEvent.getBiteTimeMin()))
-        );
+        if (StardewValleyFishing.settings().verbose) {
+            StardewValleyFishing.logger().info("Player " +
+                    event.getPlayer().getName() + " starts fishing with waiting time " + waitingTime);
+        }
     }
 
     public void stateOnHook(PlayerFishEvent event) {
@@ -72,9 +79,18 @@ public class FishingManager implements Listener {
 
         // Setup fishes
         if (StardewValleyFishing.instance.settings.useDefaultFishSetup) {
-            StardewValleyFish fish = StardewValleyFishing.instance.defaultBiomeFishSetup.randomSelect(event.getPlayer(), 1).get(0);
-            customEvent.setCaughtItems(Collections.singletonList(fish.itemStack));
-            customEvent.setFishDTO(fish.fishDTO);
+            List<StardewValleyFish> fishList = StardewValleyFishing.instance.defaultBiomeFishSetup.randomSelect(event.getPlayer(), 1);
+            if (fishList.size() == 0) {
+                StardewValleyFishing.logger().warning("No fish found for player "
+                        + event.getPlayer().getName()
+                        + " in biome " + event.getPlayer().getLocation().getBlock().getBiome().name());
+                customEvent.setCaughtItems(Collections.singletonList(new ItemStack(Material.AIR)));
+                customEvent.setFishDTO(new FishDTO());
+            } else {
+                StardewValleyFish fish = fishList.get(0);
+                customEvent.setCaughtItems(Collections.singletonList(fish.itemStack));
+                customEvent.setFishDTO(fish.fishDTO);
+            }
         }
 
         // Setup fishing rod
@@ -91,6 +107,15 @@ public class FishingManager implements Listener {
         StardewValleyFishing.instance.getServer().getPluginManager().callEvent(customEvent);
         event.setCancelled(true); // Pause the event
         event.getCaught().remove();
+
+        if (StardewValleyFishing.instance.settings.verbose) {
+            StardewValleyFishing.logger().info("Player " +
+                    event.getPlayer().getName() + " hooks " + customEvent.getCaughtItems().size() + " items");
+            StardewValleyFishing.logger().info("Player " +
+                    event.getPlayer().getName() + " fishes with attributes: " + customEvent.getFishDTO().toString());
+            StardewValleyFishing.logger().info("Player " +
+                    event.getPlayer().getName() + " fishes with attributes: " + customEvent.getFishingRodDTO().toString());
+        }
 
         if (customEvent.isCancelled()) {
             return;
@@ -114,13 +139,7 @@ public class FishingManager implements Listener {
 
         screen.loadData(customEvent.getFishDTO(), customEvent.getFishingRodDTO());
 
-
         screen.openGui(event.getPlayer());
-
-    }
-
-    public void stateCaught(PlayerFishEvent event) {
-        // Your code here
 
     }
 
@@ -132,16 +151,11 @@ public class FishingManager implements Listener {
                 stateFishing(event);
                 break;
             case CAUGHT_FISH:
-                stateCaught(event);
+                stateOnHook(event);
                 break;
             default:
                 break;
         }
-    }
-
-    public enum State {
-        WAITING,
-        ON_HOOK
     }
 
 }

@@ -81,4 +81,14 @@ public class FishingRodDTO {
         assert initialProgress >= 0;
         this.initial_progress = initialProgress;
     }
+
+    public String toString() {
+        return "FishingRodDTO{" +
+                "max_vel=" + max_vel +
+                ", acc=" + acc +
+                ", gravity=" + gravity +
+                ", scale=" + scale +
+                ", initial_progress=" + initial_progress +
+                '}';
+    }
 }

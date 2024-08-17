@@ -25,6 +25,7 @@ public class StardewValleyPlayerFishingEvent extends PlayerEvent implements Canc
 
     private FishingRodDTO fishingRodDTO;
     private FishDTO fishDTO;
+    private boolean perfect = false;
 
     private boolean cancelled = false;
 
@@ -74,6 +75,13 @@ public class StardewValleyPlayerFishingEvent extends PlayerEvent implements Canc
         this.caughtItems.addAll(caughtItems);
     }
 
+    public boolean isPerfect() {
+        return perfect;
+    }
+
+    public void setPerfect(boolean perfect) {
+        this.perfect = perfect;
+    }
 
     @Override
     public HandlerList getHandlers() {

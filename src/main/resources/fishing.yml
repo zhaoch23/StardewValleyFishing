@@ -1,12 +1,12 @@
-fishing:
+fishing-screen:
   options:
-    startX: w*0 
+    startX: w*0
     startY: h*0
     startZ: '10'
-    data: | 
+    data: | # Adjust the fishing bar height and progress bar offset to fit your fishing bar
       {
-        "fishing_bar_height": 132,
-        "progress_bar_offset": 13
+        "fishing_bar_height": 132, 
+        "progress_bar_offset": 10
       }
     scriptjs: |
       @import fishing.js;
@@ -29,20 +29,20 @@ fishing:
         endU: '%t_w_textures/fishing/bg.png%'
         endV: '%t_h_textures/fishing/bg.png%'
 
-      progress_bar:
-        type: color
-        locationX: 31
-        locationY: 0 # This is dynamically set = fishing_bar_height + progress_bar_offset
-        locationZ: 1
-        width: 4
-        height: 1
-        color: 0xff9be818
       canvas_fishing_bar:
         type: canvas
         locationX: 16 # Change this to move the fishing bar
         locationY: 3
         locationZ: 1
         relativeParts:
+          progress_bar:
+            type: color
+            locationX: 15
+            locationY: 0 # This is dynamically set = fishing_bar_height + progress_bar_offset
+            locationZ: 1
+            width: 4
+            height: 1
+            color: 0xff9be818
           rod:
             type: texture
             locationX: 0 # Dont change this

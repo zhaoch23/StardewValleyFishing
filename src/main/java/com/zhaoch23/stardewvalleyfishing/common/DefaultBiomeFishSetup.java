@@ -24,8 +24,10 @@ public class DefaultBiomeFishSetup {
 
     public void loadBiomeFishMap() {
         File file = new File(StardewValleyFishing.instance.getDataFolder(), "biome/");
-        if (!file.exists())
+        if (!file.exists()) {
             file.mkdirs();
+            StardewValleyFishing.instance.saveResource("biome/plains.yml", false);
+        }
 
         // Load all files
         File[] files = file.listFiles();
@@ -41,10 +43,13 @@ public class DefaultBiomeFishSetup {
                     try {
                         FileConfiguration config = YamlConfiguration.loadConfiguration(f);
                         List<StardewValleyFish> fish = loadFish(config);
-                        biomeFishMap.put(Biome.valueOf(name.substring(0, name.length() - 4)), fish);
-                        Bukkit.getLogger().info("[StardewValleyFishing] Loaded " + fish.size() + " fish from " + name);
+                        Biome biome = Biome.valueOf(name.substring(0, name.length() - 4).toUpperCase());
+                        biomeFishMap.put(biome, fish);
+                        StardewValleyFishing.logger().info("Loaded " +
+                                fish.size() + " fish from " + name);
                     } catch (Exception e) {
-                        Bukkit.getLogger().severe("[StardewValleyFishing] Failed to load biome fish file " + name + "\n" + e.getMessage());
+                        StardewValleyFishing.logger().severe(" Failed to load biome fish file " +
+                                name + "\n" + e.getMessage());
                     }
                 }
             }
@@ -66,20 +71,21 @@ public class DefaultBiomeFishSetup {
                     fish.itemStack = itemStack;
                 }
             } else {
-                Bukkit.getLogger().warning("[StardewValleyFishing] Fish information not found for " + fishKey);
+                StardewValleyFishing.logger().warning("Fish information not found for " + fishKey);
                 continue;
             }
 
             if (fish.itemStack == null || fish.itemStack.getType() == Material.AIR) {
-                Bukkit.getLogger().warning("[StardewValleyFishing] Fish is null for " + fishKey);
+                StardewValleyFishing.logger().warning("Fish is null for " + fishKey);
             }
 
-            if (fishSection.contains("difficulty")) {
-                fish.fishDTO = new FishDTO(fishSection.getConfigurationSection("difficulty"));
+            if (fishSection.contains("fish_ai")) {
+                fish.fishDTO = new FishDTO(fishSection.getConfigurationSection("fish_ai"));
             } else {
                 fish.fishDTO = new FishDTO();
             }
 
+            fishList.add(fish);
         }
 
         return fishList;

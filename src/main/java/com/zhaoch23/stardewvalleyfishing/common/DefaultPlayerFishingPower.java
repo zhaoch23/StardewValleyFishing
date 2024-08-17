@@ -11,8 +11,9 @@ public class DefaultPlayerFishingPower {
 
 
     public static FishingRodDTO getDefaultFishingRodDTO(ItemStack itemStack) {
-        FishingRodDTO fishingRodDTO = new FishingRodDTO();
         Objects.requireNonNull(itemStack);
+        FishingRodDTO fishingRodDTO = new FishingRodDTO();
+
         ItemMeta itemMeta = itemStack.getItemMeta();
         String num = null;
         if (itemMeta != null) {

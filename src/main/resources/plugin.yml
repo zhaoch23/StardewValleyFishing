@@ -3,15 +3,15 @@ version: '${version}'
 main: com.zhaoch23.stardewvalleyfishing.StardewValleyFishing
 
 depend:
-    - GermPlugin
+  - GermPlugin
 
 softdepend:
-    - MythicMobs
+  - MythicMobs
 
 commands:
-    stardewvalleyfishing:
-        description: Stardew Valley Fishing Command
-        usage: /<command> [reload]
-        aliases: [svf]
-        permission: stardewvalleyfishing.command
-        permission-message: You do not have permission to use this command.
+  stardewvalleyfishing:
+    description: Stardew Valley Fishing Command
+    usage: /<command> [reload]
+    aliases: [ svf ]
+    permission: stardewvalleyfishing.command
+    permission-message: You do not have permission to use this command.

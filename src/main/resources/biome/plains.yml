@@ -1,0 +1,30 @@
+example_fish:
+  itemstack:
+    ==: org.bukkit.inventory.ItemStack
+    type: DIAMOND_SWORD
+    meta:
+      ==: ItemMeta
+      meta-type: UNSPECIFIC
+      display-name: '§2我是名字'
+      lore:
+        - '§f我是描述第一行'
+        - '§7颜色符请用§'
+  fish_ai:
+      # 改变行为的周期期待值 (ticks)
+      period: 100
+      # 鱼移动到最高点所需的时间 (ticks)
+      peak_time: 40
+      # Damping raio 鱼的阻尼系数 0.0 - 1.0
+      damping_ratio: 0.9
+      # 鱼的每次移动的最大距离 0 - 100
+      distance_max: 50
+      # 鱼的每次移动的最小距离 0 - 100
+      distance_min: 10
+      # 鱼的行为模式
+      # 0: 随机移动
+      # 1: 向下
+      # -1: 向上
+      behavior_pattern:
+        - 0
+        - 1
+        - -1

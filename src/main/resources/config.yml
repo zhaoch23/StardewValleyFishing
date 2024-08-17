@@ -1,3 +1,4 @@
 stardew-valley-fishing:
   use-default-fishing-power: true
   use-default-fish-setup: true
+  verbose: true

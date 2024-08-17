@@ -3,6 +3,7 @@ package com.zhaoch23.stardewvalleyfishing;
 import com.germ.germplugin.api.GermSrcManager;
 import com.germ.germplugin.api.RootType;
 import com.zhaoch23.stardewvalleyfishing.common.DefaultBiomeFishSetup;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,7 +11,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.Objects;
 
 public final class StardewValleyFishing extends JavaPlugin implements CommandExecutor {
 
@@ -35,18 +35,21 @@ public final class StardewValleyFishing extends JavaPlugin implements CommandExe
 
     public void loadConfiguration() {
         // Load configuration
-        saveResource("fish.yml", false);
-        saveResource("fish.js", false);
-
         saveConfig();
-
-        FishingScreen.setGermConfiguration(
-                YamlConfiguration.loadConfiguration(new File(getDataFolder(), "fish.yml"))
-        );
 
         settings.loadConfig(getConfig().getConfigurationSection("stardew-valley-fishing"));
 
-        GermSrcManager.getGermSrcManager().registerSrcFolder(RootType.JEXL, getDataFolder());
+
+        File jexl = new File(getDataFolder(), "jexl");
+        jexl.mkdirs();
+        GermSrcManager.getGermSrcManager().registerSrcFolder(RootType.JEXL, jexl);
+        saveResource("jexl/fishing.js", false);
+        saveResource("fishing.yml", false);
+        YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "fishing.yml"));
+        FishingScreen.setGermConfiguration(
+                yamlConfiguration.getConfigurationSection("fishing-screen")
+        );
+
 
         defaultBiomeFishSetup.loadBiomeFishMap();
     }
@@ -56,10 +59,21 @@ public final class StardewValleyFishing extends JavaPlugin implements CommandExe
         // Plugin shutdown logic
     }
 
+    public static java.util.logging.Logger logger() {
+        return instance.getLogger();
+    }
+
+    public static Settings settings() {
+        return instance.settings;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (Objects.equals(label, "reload")) {
+        if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
             loadConfiguration();
+            if (sender != null) {
+                sender.sendMessage("Reloaded configuration");
+            }
             return true;
         } else {
             return false;

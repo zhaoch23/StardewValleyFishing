@@ -15,6 +15,9 @@ public class FishDTO {
     double distance_max = 40;
 
     public FishDTO() {
+        behavior_pattern.add(-1);
+        behavior_pattern.add(1);
+        behavior_pattern.add(0);
     }
 
     public FishDTO(ConfigurationSection section) {
@@ -136,5 +139,17 @@ public class FishDTO {
         Objects.requireNonNull(behavior, "Behavior pattern cannot be null");
         this.behavior_pattern.clear();
         this.behavior_pattern.addAll(behavior);
+    }
+
+    @Override
+    public String toString() {
+        return "FishDTO{" +
+                "behavior_pattern=" + behavior_pattern +
+                ", period=" + period +
+                ", peak_time=" + peak_time +
+                ", damping_ratio=" + damping_ratio +
+                ", distance_min=" + distance_min +
+                ", distance_max=" + distance_max +
+                '}';
     }
 }
