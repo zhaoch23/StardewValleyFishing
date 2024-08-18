@@ -3,11 +3,19 @@
 ## 介绍
 这是一个致力于在MC中使用萌芽复刻的星露谷物语钓鱼系统的插件。目前仍在开发中，欢迎大家提出建议和意见。
 
-作者QQ：_1149470063_
+1. 通过控制加速度达到流畅的浮标和钓鱼动画
+2. 鱼的AI有超高的自定义性
+3. 可以自由定义生物群系的鱼
+4. 兼容玩家自定义钓鱼等级
+5. 兼容MythicItems
+6. 超高的二次开发性，请参考[API](https://github.com/zhaoch23/StardewValleyFishing/tree/main/src/main/java/com/zhaoch23/stardewvalleyfishing/api)
 
+作者QQ：_1149470063_
 联系作者： [邮箱](mailto:c233zhao@uwaterloo.ca)
+仓库：https://github.com/zhaoch23/StardewValleyFishing
 
 下面的GIF中展示了插件的部分功能：
+
 ![gif](./misc/example.gif)
 
 ## 使用方法

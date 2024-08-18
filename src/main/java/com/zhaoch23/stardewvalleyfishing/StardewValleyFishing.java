@@ -3,7 +3,6 @@ package com.zhaoch23.stardewvalleyfishing;
 import com.germ.germplugin.api.GermSrcManager;
 import com.germ.germplugin.api.RootType;
 import com.zhaoch23.stardewvalleyfishing.common.DefaultBiomeFishSetup;
-import org.apache.logging.log4j.Logger;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,6 +19,14 @@ public final class StardewValleyFishing extends JavaPlugin implements CommandExe
     public final DefaultBiomeFishSetup defaultBiomeFishSetup = new DefaultBiomeFishSetup();
     public FishingManager fishingManager = new FishingManager();
 
+    public static java.util.logging.Logger logger() {
+        return instance.getLogger();
+    }
+
+    public static Settings settings() {
+        return instance.settings;
+    }
+
     @Override
     public void onEnable() {
         instance = this;
@@ -31,7 +38,6 @@ public final class StardewValleyFishing extends JavaPlugin implements CommandExe
 
         loadConfiguration();
     }
-
 
     public void loadConfiguration() {
         // Load configuration
@@ -57,14 +63,6 @@ public final class StardewValleyFishing extends JavaPlugin implements CommandExe
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-    }
-
-    public static java.util.logging.Logger logger() {
-        return instance.getLogger();
-    }
-
-    public static Settings settings() {
-        return instance.settings;
     }
 
     @Override

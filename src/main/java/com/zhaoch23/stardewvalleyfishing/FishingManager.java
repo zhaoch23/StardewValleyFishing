@@ -4,10 +4,9 @@ import com.zhaoch23.stardewvalleyfishing.api.FishDTO;
 import com.zhaoch23.stardewvalleyfishing.api.FishingRodDTO;
 import com.zhaoch23.stardewvalleyfishing.api.event.StardewValleyPlayerFishingEvent;
 import com.zhaoch23.stardewvalleyfishing.api.event.StardewValleyPlayerStartFishingEvent;
-import com.zhaoch23.stardewvalleyfishing.common.DefaultPlayerFishingPower;
+import com.zhaoch23.stardewvalleyfishing.common.FishingPowerUtils;
 import com.zhaoch23.stardewvalleyfishing.common.StardewValleyFish;
 import net.minecraft.server.v1_12_R1.EntityFishingHook;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftFish;
 import org.bukkit.event.EventHandler;
@@ -15,7 +14,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -55,7 +53,24 @@ public class FishingManager implements Listener {
     }
 
     public void stateFishing(PlayerFishEvent event) {
+        // Set waiting time
+        int min = StardewValleyFishing.settings().waitingTime.min;
+        int max = StardewValleyFishing.settings().waitingTime.max;
+        if (StardewValleyFishing.settings().waitingTime.fishingPowerDiscount > 0) {
+            int fishingPower = FishingPowerUtils.getLoreFishingPower(event.getPlayer());
+            min = (int) (StardewValleyFishing.settings().waitingTime.min * (1 - fishingPower * StardewValleyFishing.settings().waitingTime.fishingPowerDiscount));
+            max = (int) (StardewValleyFishing.settings().waitingTime.max * (1 - fishingPower * StardewValleyFishing.settings().waitingTime.fishingPowerDiscount));
+            if (max < 0) {
+                max = 0;
+            }
+            if (min > max) {
+                min = max;
+            }
+        }
+
         StardewValleyPlayerStartFishingEvent customEvent = new StardewValleyPlayerStartFishingEvent(event.getPlayer());
+        customEvent.setBiteTimeMin(min);
+        customEvent.setBiteTimeMax(max);
         StardewValleyFishing.instance.getServer().getPluginManager().callEvent(customEvent);
 
         if (customEvent.isCancelled()) {
@@ -94,15 +109,8 @@ public class FishingManager implements Listener {
         }
 
         // Setup fishing rod
-        if (StardewValleyFishing.instance.settings.useDefaultFishingPower) {
-            PlayerInventory playerInventory = event.getPlayer().getInventory();
-            ItemStack item = playerInventory.getItemInMainHand();
-            if (item.getType() != Material.FISHING_ROD) {
-                item = playerInventory.getItemInOffHand();
-            }
-            FishingRodDTO fishingRodDTO = DefaultPlayerFishingPower.getDefaultFishingRodDTO(item);
-            customEvent.setFishingRodDTO(fishingRodDTO);
-        }
+        int fishingPower = FishingPowerUtils.getLoreFishingPower(event.getPlayer());
+        customEvent.setFishingRodDTO(FishingPowerUtils.setupFishingDTO(fishingPower));
 
         StardewValleyFishing.instance.getServer().getPluginManager().callEvent(customEvent);
         event.setCancelled(true); // Pause the event

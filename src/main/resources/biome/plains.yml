@@ -1,4 +1,7 @@
 example_fish:
+  # 使用MythicItems
+  # mythicitem: 物品名
+  # 使用普通的ItemStack
   itemstack:
     ==: org.bukkit.inventory.ItemStack
     type: DIAMOND_SWORD

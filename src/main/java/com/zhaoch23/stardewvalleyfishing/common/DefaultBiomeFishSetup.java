@@ -3,7 +3,6 @@ package com.zhaoch23.stardewvalleyfishing.common;
 import com.zhaoch23.stardewvalleyfishing.StardewValleyFishing;
 import com.zhaoch23.stardewvalleyfishing.api.FishDTO;
 import io.lumine.xikage.mythicmobs.MythicMobs;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.ConfigurationSection;

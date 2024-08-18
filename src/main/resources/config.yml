@@ -1,4 +1,16 @@
 stardew-valley-fishing:
-  use-default-fishing-power: true
+  # 玩家的钓鱼等级。使用
+  # 使用“lore”会自动读取鱼竿上的 “渔力 <等级>”或者 “Fishing Power <等级>”。
+  # 使用其他则会尝试读取PAPI变量。如 “%player_fishing_level%”。
+  fishing-power: "lore"
+  # 使用默认的生物群系配置
   use-default-fish-setup: true
+  # DEBUG信息
   verbose: true
+
+
+  waiting-time:
+    min: 100
+    max: 400
+    # 每有一点钓鱼等级，等待时间减少的百分比， 0 - 1
+    fishing-power-discount: 0.0

@@ -105,7 +105,8 @@ public class FishingScreen extends GermGuiScreen {
     public void caughtFish(Map<String, Object> contentMap, Map<String, Object> responseMap) {
         boolean perfect = contentMap.get("perfect") != null && (boolean) contentMap.get("perfect");
 
-        StardewValleyPlayerFishingEvent customEvent = new StardewValleyPlayerFishingEvent(getPlayer(), StardewValleyPlayerFishingEvent.State.CAUGHT_FISH);
+        StardewValleyPlayerFishingEvent customEvent =
+                new StardewValleyPlayerFishingEvent(getPlayer(), StardewValleyPlayerFishingEvent.State.CAUGHT_FISH);
         customEvent.setCaughtItems(fishes);
         customEvent.setPerfect(perfect);
 
@@ -145,6 +146,12 @@ public class FishingScreen extends GermGuiScreen {
                     getPlayer().getName() + " failed to catch fish after " +
                     (System.currentTimeMillis() - startTime) + "ms");
         }
+
+        StardewValleyPlayerFishingEvent customEvent =
+                new StardewValleyPlayerFishingEvent(getPlayer(), StardewValleyPlayerFishingEvent.State.FAILED_ATTEMPT);
+        customEvent.setCaughtItems(fishes);
+
+        Bukkit.getPluginManager().callEvent(customEvent);
 
         close();
     }
