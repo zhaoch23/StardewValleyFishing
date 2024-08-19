@@ -138,7 +138,7 @@ function options_methods() {
             self.initialized = self.fish_state != null;
         };
 
-        self['init'] = (fishDTO, rodDTO) => {
+        self['init'] = (fishDTO, rodDTO, screenDos) => {
 
             self["fish_state"] = FishSSM(self.fishing_bar_height, fishDTO["period"], fishDTO["peak_time"], fishDTO["damping_ratio"], fishDTO["distance_min"], fishDTO["distance_max"], fishDTO["behavior_pattern"]);
             self.fish_widget_x = self.fish_widget.getLocationX();
@@ -148,6 +148,10 @@ function options_methods() {
             self["rod_state"] = FishingRodModel(rod_fishing_bar_height, rodDTO["max_vel"], rodDTO["acc"], rodDTO["gravity"]);
             self.rod_widget.setHeight(rodDTO['scale'] * self.rod_widget.getHeight());
             self.progress = rodDTO["initial_progress"];
+
+            self["screen_dos"] = screenDos;
+
+            GuiProxy.runDos(self.screen_dos['screen_open']);
 
             self.initialized = self.fishing_bar_height != 0;
         };
@@ -159,13 +163,18 @@ function options_methods() {
             // poll keyboard
             Keyboard.poll();
 
-
             let fish_pos = self.fish_state.step();
             let rod_pos = self.rod_state.step(is_pulling);
 
+            if (is_pulling) {
+                GuiProxy.runDos(self.screen_dos['pulling_rod']);
+            } else {
+                GuiProxy.runDos(self.screen_dos['releasing_rod']);
+            }
+
             // Check if fish is hooked (AABB collision)
-            if ((fish_pos + self.fish_widget.getHeight() > rod_pos && fish_pos < rod_pos + self.rod_widget.getHeight()) ||
-                (rod_pos + self.rod_widget.getHeight() > fish_pos && rod_pos < fish_pos + self.fish_widget.getHeight())) {
+            let fish_hitpoint = self.fish_widget.getHeight() / 2 + fish_pos;
+            if (fish_hitpoint > rod_pos && fish_hitpoint < rod_pos + self.rod_widget.getHeight()) {
                 // Fish is hooked increase progress
                 self.progress += 1;
 
@@ -173,9 +182,16 @@ function options_methods() {
                 self.fish_widget.setLocationY(fish_pos + self.uniformRV.yield() * 0.5);
                 self.fish_widget.setLocationX(self.uniformRV.yield() * 0.5);
 
+                GuiProxy.runDos(self.screen_dos['hooking_fish']);
+
                 if (self.progress >= 100) {
                     // Fish is caught
-                    Log.chat("fish caught");
+                    // Log.chat("fish caught");
+                    if (self.perfect) {
+                        GuiProxy.runDos(self.screen_dos['perfect_fish_caught']);
+                    } else {
+                        GuiProxy.runDos(self.screen_dos['fish_caught']);
+                    }
                     self.state = 1;
                     GuiScreen.post("caughtFish", {
                         "perfect": self.perfect
@@ -191,7 +207,8 @@ function options_methods() {
                 self.fish_widget.setLocationX(0);
 
                 if (self.progress == 0) {
-                    Log.chat("fish lost");
+                    // Log.chat("fish lost");
+                    GuiProxy.runDos(self.screen_dos['fish_escaped']);
                     self.state = 2;
                     GuiScreen.post("attemptFailed", {
                         "dummy_frame": 0
@@ -225,7 +242,14 @@ function options_dataScript() {
     if (dataMap.containsKey("fishDTO")) {
         FishingService().init(
             dataMap.get("fishDTO"), // fishDTO
-            dataMap.get("fishingRodDTO") // rodDTO
+            dataMap.get("fishingRodDTO"), // rodDTO
+            dataMap.get("screenDos") // screenDos
         );
+    }
+}
+
+function options_closeScript() {
+    if (FishingService().initialized) {
+        GuiProxy.runDos(FishingService().screen_dos['screen_close']);
     }
 }

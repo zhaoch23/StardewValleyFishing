@@ -1,9 +1,13 @@
 package com.zhaoch23.stardewvalleyfishing;
 
+import com.zhaoch23.stardewvalleyfishing.api.ScreenDos;
 import org.bukkit.configuration.ConfigurationSection;
+
+import java.util.ArrayList;
 
 public class Settings {
 
+    public ScreenDos screenDos;
     public final WaitingTime waitingTime = new WaitingTime();
     public String fishingPower = "lore";
     public boolean useDefaultFishSetup = true;
@@ -15,6 +19,24 @@ public class Settings {
         verbose = configurationSection.getBoolean("verbose", true);
 
         waitingTime.loadConfig(configurationSection.getConfigurationSection("waiting-time"));
+
+        ConfigurationSection screenDosSection = configurationSection.getConfigurationSection("screen-dos");
+        screenDos = new ScreenDos(
+                screenDosSection.contains("screen-open") ?
+                        screenDosSection.getStringList("screen-open") : new ArrayList<>(),
+                screenDosSection.contains("screen-close") ?
+                        screenDosSection.getStringList("screen-close") : new ArrayList<>(),
+                screenDosSection.contains("releasing-rod") ?
+                        screenDosSection.getStringList("releasing-rod") : new ArrayList<>(),
+                screenDosSection.contains("hooking-fish") ?
+                        screenDosSection.getStringList("hooking-fish") : new ArrayList<>(),
+                screenDosSection.contains("fish-caught") ?
+                        screenDosSection.getStringList("fish-caught") : new ArrayList<>(),
+                screenDosSection.contains("perfect-fish-caught") ?
+                        screenDosSection.getStringList("perfect-fish-caught") : new ArrayList<>(),
+                screenDosSection.contains("fish-escaped") ?
+                        screenDosSection.getStringList("fish-escaped") : new ArrayList<>()
+        );
     }
 
     public static class WaitingTime {

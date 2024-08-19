@@ -49,7 +49,7 @@ public final class StardewValleyFishing extends JavaPlugin implements CommandExe
         File jexl = new File(getDataFolder(), "jexl");
         jexl.mkdirs();
         GermSrcManager.getGermSrcManager().registerSrcFolder(RootType.JEXL, jexl);
-        saveResource("jexl/fishing.js", false);
+        saveResource("jexl/fishing.js", true);
         saveResource("fishing.yml", false);
         YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "fishing.yml"));
         FishingScreen.setGermConfiguration(

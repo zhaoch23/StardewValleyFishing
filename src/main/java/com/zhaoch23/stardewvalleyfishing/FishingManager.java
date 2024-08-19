@@ -90,15 +90,21 @@ public class FishingManager implements Listener {
 
     public void stateOnHook(PlayerFishEvent event) {
 
-        StardewValleyPlayerFishingEvent customEvent = new StardewValleyPlayerFishingEvent(event.getPlayer(), StardewValleyPlayerFishingEvent.State.BITE);
+        StardewValleyPlayerFishingEvent customEvent =
+                new StardewValleyPlayerFishingEvent(event.getPlayer(),
+                        StardewValleyFishing.settings().screenDos.copy(),
+                        StardewValleyPlayerFishingEvent.State.BITE);
 
         // Setup fishes
         if (StardewValleyFishing.instance.settings.useDefaultFishSetup) {
-            List<StardewValleyFish> fishList = StardewValleyFishing.instance.defaultBiomeFishSetup.randomSelect(event.getPlayer(), 1);
-            if (fishList.size() == 0) {
+            List<StardewValleyFish> fishList =
+                    StardewValleyFishing.instance.defaultBiomeFishSetup.randomSelect(event.getPlayer(), 1);
+
+            if (fishList.isEmpty()) {
                 StardewValleyFishing.logger().warning("No fish found for player "
                         + event.getPlayer().getName()
                         + " in biome " + event.getPlayer().getLocation().getBlock().getBiome().name());
+
                 customEvent.setCaughtItems(Collections.singletonList(new ItemStack(Material.AIR)));
                 customEvent.setFishDTO(new FishDTO());
             } else {
@@ -116,7 +122,7 @@ public class FishingManager implements Listener {
         event.setCancelled(true); // Pause the event
         event.getCaught().remove();
 
-        if (StardewValleyFishing.instance.settings.verbose) {
+        if (StardewValleyFishing.settings().verbose) {
             StardewValleyFishing.logger().info("Player " +
                     event.getPlayer().getName() + " hooks " + customEvent.getCaughtItems().size() + " items");
             StardewValleyFishing.logger().info("Player " +
@@ -128,13 +134,14 @@ public class FishingManager implements Listener {
         if (customEvent.isCancelled()) {
             return;
         }
+        event.setCancelled(false);
 
         // Set fishing time to a large number
         setFishingTime(((CraftFish) event.getHook()).getHandle(), 99999999);
 
         FishingScreen screen = FishingScreen.createFishingScreen(
                 event.getPlayer(),
-                customEvent.getCaughtItems(),
+                customEvent,
                 ((CraftFish) event.getHook()).getHandle()
         );
 

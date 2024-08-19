@@ -1,14 +1,17 @@
 # 萌芽星露谷物语钓鱼插件
 
 ## 介绍
-这是一个致力于在MC中使用萌芽复刻的星露谷物语钓鱼系统的插件。目前仍在开发中，欢迎大家提出建议和意见。
+这是一个致力于在MC中使用萌芽复刻的星露谷物语钓鱼系统的插件。
+目前仍在开发中，欢迎大家提出建议和意见。
 
-1. 通过控制加速度达到流畅的浮标和钓鱼动画
-2. 鱼的AI有超高的自定义性
-3. 可以自由定义生物群系的鱼
-4. 兼容玩家自定义钓鱼等级
-5. 兼容MythicItems
-6. 超高的二次开发性，请参考[API](https://github.com/zhaoch23/StardewValleyFishing/tree/main/src/main/java/com/zhaoch23/stardewvalleyfishing/api)
+### 特点
+1. 通过控制加速度达到**流畅的浮标和钓鱼动画**
+2. 本地端口脚本，**0延迟0动态带宽占用**
+3. 鱼有**超高的AI自定义性**
+4. 可以**自由定义生物群系**的鱼
+5. 兼容玩家**自定义钓鱼等级**
+6. 兼容MythicItems和兼容萌芽的自定义Dos
+7. 超高的二次开发性，请参考[API](https://github.com/zhaoch23/StardewValleyFishing/tree/main/src/main/java/com/zhaoch23/stardewvalleyfishing/api)
 
 作者QQ：_1149470063_
 联系作者： [邮箱](mailto:c233zhao@uwaterloo.ca)
@@ -31,5 +34,7 @@
 - [x] 鱼的AI自定义，请参考`biome/plains.yml`中的`fish_ai`部分
 - [x] 自定义生物群系的鱼
 - [x] 兼容MythicItems
-- [ ] 音效
+- [x] 钓鱼等级
+- [x] 音效与Dos
 - [ ] 宝箱系统
+- [ ] 鱼饵与钓鱼工具

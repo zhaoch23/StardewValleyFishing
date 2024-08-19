@@ -2,6 +2,7 @@ package com.zhaoch23.stardewvalleyfishing.api.event;
 
 import com.zhaoch23.stardewvalleyfishing.api.FishDTO;
 import com.zhaoch23.stardewvalleyfishing.api.FishingRodDTO;
+import com.zhaoch23.stardewvalleyfishing.api.ScreenDos;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -21,7 +22,8 @@ public class StardewValleyPlayerFishingEvent extends PlayerEvent implements Canc
 
     private final List<ItemStack> caughtItems = new ArrayList<>();
 
-    private final State state;
+    private final ScreenDos screenDos;
+    private State state;
 
     private FishingRodDTO fishingRodDTO;
     private FishDTO fishDTO;
@@ -30,8 +32,9 @@ public class StardewValleyPlayerFishingEvent extends PlayerEvent implements Canc
     private boolean cancelled = false;
 
 
-    public StardewValleyPlayerFishingEvent(Player who, State state) {
+    public StardewValleyPlayerFishingEvent(Player who, ScreenDos screenDos, State state) {
         super(who);
+        this.screenDos = screenDos;
         this.state = state;
     }
 
@@ -39,11 +42,21 @@ public class StardewValleyPlayerFishingEvent extends PlayerEvent implements Canc
         return state;
     }
 
+    public void setState(State state) {
+        Objects.requireNonNull(state, "state cannot be null");
+        state = state;
+    }
+
+    public ScreenDos getScreendos() {
+        return screenDos;
+    }
+
     public FishDTO getFishDTO() {
         return fishDTO;
     }
 
     public void setFishDTO(FishDTO fishDTO) {
+        Objects.requireNonNull(fishDTO, "fishDTO cannot be null");
         this.fishDTO = fishDTO;
     }
 
@@ -52,6 +65,7 @@ public class StardewValleyPlayerFishingEvent extends PlayerEvent implements Canc
     }
 
     public void setFishingRodDTO(FishingRodDTO fishingRodDTO) {
+        Objects.requireNonNull(fishingRodDTO, "fishingRodDTO cannot be null");
         this.fishingRodDTO = fishingRodDTO;
     }
 
