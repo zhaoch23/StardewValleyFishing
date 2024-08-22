@@ -1,4 +1,4 @@
-package com.zhaoch23.stardewvalleyfishing.api;
+package com.zhaoch23.stardewvalleyfishing.api.data;
 
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class FishDTO {
+public class FishAI implements Cloneable {
     final List<Integer> behavior_pattern = new ArrayList<>();
     int period = 100;
     int peak_time = 40;
@@ -14,13 +14,13 @@ public class FishDTO {
     double distance_min = 0.0;
     double distance_max = 40;
 
-    public FishDTO() {
+    public FishAI() {
         behavior_pattern.add(-1);
         behavior_pattern.add(1);
         behavior_pattern.add(0);
     }
 
-    public FishDTO(ConfigurationSection section) {
+    public FishAI(ConfigurationSection section) {
         if (section.contains("period")) {
             setBehaviorPeriod(section.getInt("period"));
         }
@@ -39,6 +39,25 @@ public class FishDTO {
         if (section.contains("behavior_pattern")) {
             setBehaviorPattern(section.getIntegerList("behavior_pattern"));
         }
+    }
+
+    private FishAI(List<Integer> behavior_pattern, int period, int peak_time, double damping_ratio, double distance_min, double distance_max) {
+        this.behavior_pattern.addAll(behavior_pattern);
+        this.period = period;
+        this.peak_time = peak_time;
+        this.damping_ratio = damping_ratio;
+        this.distance_min = distance_min;
+        this.distance_max = distance_max;
+    }
+
+    @Override
+    public FishAI clone() {
+        return new FishAI(new ArrayList<>(behavior_pattern),
+                period,
+                peak_time,
+                damping_ratio,
+                distance_min,
+                distance_max);
     }
 
     public int getBehaviorPeriod() {

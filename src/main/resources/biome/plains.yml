@@ -1,17 +1,36 @@
+# biome/plains.yml
+# 如果想完全自定义掉落物，请在config.yml中设置
+# use-default-fish-setup: false
+# 监听SVFishBiteEvent事件来自定义鱼的行为
+# 然后通过监听SVFishCaughtEvent事件来自定义掉落物
+# 和鱼的行为
+
+# 鱼的名字，不可重复
 example_fish:
-  # 使用MythicItems
-  # mythicitem: 物品名
-  # 使用普通的ItemStack
-  itemstack:
-    ==: org.bukkit.inventory.ItemStack
-    type: DIAMOND_SWORD
-    meta:
-      ==: ItemMeta
-      meta-type: UNSPECIFIC
-      display-name: '§2我是名字'
-      lore:
-        - '§f我是描述第一行'
-        - '§7颜色符请用§'
+  # 鱼出现的权重，整数，越大出现的概率越大
+  tickets: 10
+  # 支持Expression与PAPI变量，请先在config.yml中启用
+  # tickets: '%svfishing_is_raining%*10 + 10' # 雨天出现概率更大
+  # 掉落的物品数量，会重复在drop_items中随机选择物品
+  drop_count: 2
+  loots:
+    # 使用MythicItems，开头使用mythicitem，如
+    mythicitem_1: SkeletonKingSword
+    # 使用普通的ItemStack，开头使用itemstack，如
+    itemstack_1:
+      ==: org.bukkit.inventory.ItemStack
+      type: DIAMOND_SWORD
+      meta:
+        ==: ItemMeta
+        meta-type: UNSPECIFIC
+        display-name: '§2我是名字'
+        lore:
+          - '§f我是描述第一行'
+          - '§7颜色符请用§'
+    # 钓上生物, 使用MythicMobs，开头使用mythicmob，如
+    mythicmob_1: 'SkeletalKnight'
+
+  # 鱼的AI
   fish_ai:
       # 改变行为的周期期待值 (ticks)
       period: 100

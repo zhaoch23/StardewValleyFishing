@@ -1,25 +1,20 @@
 package com.zhaoch23.stardewvalleyfishing;
 
-import com.zhaoch23.stardewvalleyfishing.api.FishDTO;
-import com.zhaoch23.stardewvalleyfishing.api.FishingRodDTO;
-import com.zhaoch23.stardewvalleyfishing.api.event.StardewValleyPlayerFishingEvent;
-import com.zhaoch23.stardewvalleyfishing.api.event.StardewValleyPlayerStartFishingEvent;
-import com.zhaoch23.stardewvalleyfishing.common.FishingPowerUtils;
-import com.zhaoch23.stardewvalleyfishing.common.StardewValleyFish;
+import com.zhaoch23.stardewvalleyfishing.api.SVFishHook;
+import com.zhaoch23.stardewvalleyfishing.api.event.SVFishBiteEvent;
+import com.zhaoch23.stardewvalleyfishing.api.event.SVStartFishingEvent;
 import net.minecraft.server.v1_12_R1.EntityFishingHook;
-import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftFish;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerFishEvent;
-import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.List;
 
-public class FishingManager implements Listener {
+public class FishingStateManager implements Listener {
 
 
     public static void setFishingTime(EntityFishingHook hook, int time) {
@@ -32,9 +27,8 @@ public class FishingManager implements Listener {
             waitTime2 = EntityFishingHook.class.getDeclaredField("g");
 
         } catch (NoSuchFieldException | SecurityException e) {
-            e.printStackTrace();
             StardewValleyFishing.logger().severe("Field not found in EntityFishingHook. " +
-                    "Are you using a Forge server?");
+                    "Are you using a Forge server?\n" + e);
             return;
         }
 
@@ -45,9 +39,8 @@ public class FishingManager implements Listener {
             waitTime.setInt(hook, time);
             waitTime2.setInt(hook, 0);
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
             StardewValleyFishing.logger().severe("Failed to set fishing time in EntityFishingHook. " +
-                    "Are you using a Forge server?");
+                    "Are you using a Forge server?\n" + e);
         }
 
     }
@@ -57,7 +50,7 @@ public class FishingManager implements Listener {
         int min = StardewValleyFishing.settings().waitingTime.min;
         int max = StardewValleyFishing.settings().waitingTime.max;
         if (StardewValleyFishing.settings().waitingTime.fishingPowerDiscount > 0) {
-            int fishingPower = FishingPowerUtils.getLoreFishingPower(event.getPlayer());
+            int fishingPower = FishingPowerUtils.getFishingPower(event.getPlayer());
             min = (int) (StardewValleyFishing.settings().waitingTime.min * (1 - fishingPower * StardewValleyFishing.settings().waitingTime.fishingPowerDiscount));
             max = (int) (StardewValleyFishing.settings().waitingTime.max * (1 - fishingPower * StardewValleyFishing.settings().waitingTime.fishingPowerDiscount));
             if (max < 0) {
@@ -68,7 +61,7 @@ public class FishingManager implements Listener {
             }
         }
 
-        StardewValleyPlayerStartFishingEvent customEvent = new StardewValleyPlayerStartFishingEvent(event.getPlayer());
+        SVStartFishingEvent customEvent = new SVStartFishingEvent(event.getPlayer());
         customEvent.setBiteTimeMin(min);
         customEvent.setBiteTimeMax(max);
         StardewValleyFishing.instance.getServer().getPluginManager().callEvent(customEvent);
@@ -88,74 +81,74 @@ public class FishingManager implements Listener {
         }
     }
 
+    /**
+     * Player hooks a fish
+     *
+     * @param event PlayerFishEvent
+     */
     public void stateOnHook(PlayerFishEvent event) {
+        Player player = event.getPlayer();
 
-        StardewValleyPlayerFishingEvent customEvent =
-                new StardewValleyPlayerFishingEvent(event.getPlayer(),
-                        StardewValleyFishing.settings().screenDos.copy(),
-                        StardewValleyPlayerFishingEvent.State.BITE);
-
+        SVFishHook fishHook;
         // Setup fishes
-        if (StardewValleyFishing.instance.settings.useDefaultFishSetup) {
-            List<StardewValleyFish> fishList =
-                    StardewValleyFishing.instance.defaultBiomeFishSetup.randomSelect(event.getPlayer(), 1);
+        if (StardewValleyFishing.settings().useBiomeSchemeSetup) {
+            // Get the biome of the hook entity
+            Biome biome = event.getHook().getLocation().getBlock().getBiome();
+            fishHook = StardewValleyFishing.getFishingSchemeManager().ticketPoll(
+                    player,
+                    biome.toString());
 
-            if (fishList.isEmpty()) {
-                StardewValleyFishing.logger().warning("No fish found for player "
-                        + event.getPlayer().getName()
-                        + " in biome " + event.getPlayer().getLocation().getBlock().getBiome().name());
-
-                customEvent.setCaughtItems(Collections.singletonList(new ItemStack(Material.AIR)));
-                customEvent.setFishDTO(new FishDTO());
+            // If no fish found, use default
+            if (fishHook == null) {
+                StardewValleyFishing.logger().warning("No fish found in biome " + biome);
+                fishHook = new SVFishHook();
             } else {
-                StardewValleyFish fish = fishList.get(0);
-                customEvent.setCaughtItems(Collections.singletonList(fish.itemStack));
-                customEvent.setFishDTO(fish.fishDTO);
+                if (StardewValleyFishing.settings().verbose)
+                    StardewValleyFishing.logger().info("Player " +
+                            player.getName() + " hooks a fish in biome " + biome);
+                fishHook = fishHook.clone(); // Clone to prevent modification
             }
+        } else {
+            fishHook = new SVFishHook();
         }
 
         // Setup fishing rod
-        int fishingPower = FishingPowerUtils.getLoreFishingPower(event.getPlayer());
-        customEvent.setFishingRodDTO(FishingPowerUtils.setupFishingDTO(fishingPower));
+        int fishingPower = FishingPowerUtils.getFishingPower(event.getPlayer());
 
-        StardewValleyFishing.instance.getServer().getPluginManager().callEvent(customEvent);
+        SVFishBiteEvent customEvent = new SVFishBiteEvent(
+                player,
+                StardewValleyFishing.settings().screenDos,
+                fishHook,
+                FishingPowerUtils.setupFishingDTO(fishingPower)
+        );
+
         event.setCancelled(true); // Pause the event
         event.getCaught().remove();
 
-        if (StardewValleyFishing.settings().verbose) {
-            StardewValleyFishing.logger().info("Player " +
-                    event.getPlayer().getName() + " hooks " + customEvent.getCaughtItems().size() + " items");
-            StardewValleyFishing.logger().info("Player " +
-                    event.getPlayer().getName() + " fishes with attributes: " + customEvent.getFishDTO().toString());
-            StardewValleyFishing.logger().info("Player " +
-                    event.getPlayer().getName() + " fishes with attributes: " + customEvent.getFishingRodDTO().toString());
-        }
+        StardewValleyFishing.instance.getServer().getPluginManager().callEvent(customEvent);
 
         if (customEvent.isCancelled()) {
             return;
         }
-        event.setCancelled(false);
+        if (StardewValleyFishing.settings().verbose) {
+            StardewValleyFishing.logger().info("Player " +
+                    player.getName() + " fishes with attributes: " + customEvent.getFishingRod());
+            StardewValleyFishing.logger().info("Player " +
+                    player.getName() + " fishes with fish: " + customEvent.getFishHook());
+        }
 
         // Set fishing time to a large number
         setFishingTime(((CraftFish) event.getHook()).getHandle(), 99999999);
 
         FishingScreen screen = FishingScreen.createFishingScreen(
                 event.getPlayer(),
-                customEvent,
+                fishHook,
                 ((CraftFish) event.getHook()).getHandle()
         );
 
-        if (customEvent.getFishDTO() == null) {
-            customEvent.setFishDTO(new FishDTO());
-        }
-        if (customEvent.getFishingRodDTO() == null) {
-            customEvent.setFishingRodDTO(new FishingRodDTO());
-        }
-
-        screen.loadData(customEvent.getFishDTO(), customEvent.getFishingRodDTO());
-
+        // Load data
+        screen.loadData(customEvent.getFishAI(), customEvent.getFishingRod(), customEvent.getScreenDos());
         screen.openGui(event.getPlayer());
-
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

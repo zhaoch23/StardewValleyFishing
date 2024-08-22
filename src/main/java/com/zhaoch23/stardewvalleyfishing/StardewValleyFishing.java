@@ -2,7 +2,8 @@ package com.zhaoch23.stardewvalleyfishing;
 
 import com.germ.germplugin.api.GermSrcManager;
 import com.germ.germplugin.api.RootType;
-import com.zhaoch23.stardewvalleyfishing.common.DefaultBiomeFishSetup;
+import com.zhaoch23.stardewvalleyfishing.hook.PlaceholderAPIHook;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,14 +11,16 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.Random;
 
 public final class StardewValleyFishing extends JavaPlugin implements CommandExecutor {
 
     public static StardewValleyFishing instance;
     public final Settings settings = new Settings();
 
-    public final DefaultBiomeFishSetup defaultBiomeFishSetup = new DefaultBiomeFishSetup();
-    public FishingManager fishingManager = new FishingManager();
+    public final FishingSchemeManager fishingSchemeManager = new FishingSchemeManager();
+    public final Random random = new Random();
+    public FishingStateManager fishingManager = new FishingStateManager();
 
     public static java.util.logging.Logger logger() {
         return instance.getLogger();
@@ -25,6 +28,10 @@ public final class StardewValleyFishing extends JavaPlugin implements CommandExe
 
     public static Settings settings() {
         return instance.settings;
+    }
+
+    public static Random random() {
+        return instance.random;
     }
 
     @Override
@@ -37,14 +44,27 @@ public final class StardewValleyFishing extends JavaPlugin implements CommandExe
         getCommand("stardewvalleyfishing").setExecutor(this);
 
         loadConfiguration();
+
+        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new PlaceholderAPIHook().register();
+        } else {
+            getLogger().warning("PlaceholderAPI not found, some features may not work");
+        }
+    }
+
+    public static FishingSchemeManager getFishingSchemeManager() {
+        return instance.fishingSchemeManager;
     }
 
     public void loadConfiguration() {
         // Load configuration
-        saveConfig();
+        File configFile = new File(getDataFolder(), "config.yml");
+        if (!configFile.exists()) {
+            saveResource("config.yml", false);
+        }
+        reloadConfig();
 
         settings.loadConfig(getConfig().getConfigurationSection("stardew-valley-fishing"));
-
 
         File jexl = new File(getDataFolder(), "jexl");
         jexl.mkdirs();
@@ -57,7 +77,7 @@ public final class StardewValleyFishing extends JavaPlugin implements CommandExe
         );
 
 
-        defaultBiomeFishSetup.loadBiomeFishMap();
+        fishingSchemeManager.loadBiomeScheme();
     }
 
     @Override

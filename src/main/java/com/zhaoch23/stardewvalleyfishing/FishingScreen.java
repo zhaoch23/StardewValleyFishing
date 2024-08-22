@@ -3,14 +3,18 @@ package com.zhaoch23.stardewvalleyfishing;
 import com.germ.germplugin.api.dynamic.gui.GermGuiScreen;
 import com.germ.germplugin.api.dynamic.gui.GuiManager;
 import com.germ.germplugin.api.dynamic.gui.IGuiScreenHandler;
-import com.zhaoch23.stardewvalleyfishing.api.FishDTO;
-import com.zhaoch23.stardewvalleyfishing.api.FishingRodDTO;
-import com.zhaoch23.stardewvalleyfishing.api.event.StardewValleyPlayerFishingEvent;
+import com.zhaoch23.stardewvalleyfishing.api.data.FishAI;
+import com.zhaoch23.stardewvalleyfishing.api.data.FishingRod;
+import com.zhaoch23.stardewvalleyfishing.api.SVFishHook;
+import com.zhaoch23.stardewvalleyfishing.api.data.ScreenDos;
+import com.zhaoch23.stardewvalleyfishing.api.event.SVFishCaughtEvent;
+import com.zhaoch23.stardewvalleyfishing.api.event.SVFishEscapedEvent;
+import com.zhaoch23.stardewvalleyfishing.api.loot.FishingLoot;
 import net.minecraft.server.v1_12_R1.EntityFishingHook;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,9 +24,9 @@ public class FishingScreen extends GermGuiScreen {
 
     public static ConfigurationSection germConfiguration;
 
-    public final StardewValleyPlayerFishingEvent event;
+    public final SVFishHook fishHook;
 
-    public final EntityFishingHook hook;
+    public final EntityFishingHook craftHook;
 
     private final Map<String, BiConsumer<Map<String, Object>, Map<String, Object>>> callbackMap = new HashMap<>();
 
@@ -30,11 +34,11 @@ public class FishingScreen extends GermGuiScreen {
 
     public FishingScreen(String title,
                          ConfigurationSection configurationSection,
-                         StardewValleyPlayerFishingEvent event,
-                         EntityFishingHook hook) {
+                         SVFishHook fishHook,
+                         EntityFishingHook craftHook) {
         super(title, configurationSection);
-        this.event = event;
-        this.hook = hook;
+        this.fishHook = fishHook;
+        this.craftHook = craftHook;
 
         callbackMap.put("caughtFish", this::caughtFish);
         callbackMap.put("attemptFailed", this::attemptFailed);
@@ -42,15 +46,16 @@ public class FishingScreen extends GermGuiScreen {
         this.setClosedHandler(new IGuiScreenHandler() {
             @Override
             public void handle(Player player, GermGuiScreen germGuiScreen) {
-                if (hook.isAlive()) {
-                    hook.j(); // Pull the hook back
+                if (craftHook.isAlive()) {
+                    craftHook.j(); // Pull the hook back
                 }
             }
         });
+
     }
 
     public static FishingScreen createFishingScreen(Player player,
-                                                    StardewValleyPlayerFishingEvent event,
+                                                    SVFishHook fishHook,
                                                     EntityFishingHook hook) {
         // Show the fishing screen
         String title = getTitle(player);
@@ -58,7 +63,7 @@ public class FishingScreen extends GermGuiScreen {
             GuiManager.getOpenedGui(player, title).close();
         }
 
-        return new FishingScreen(title, germConfiguration, event, hook);
+        return new FishingScreen(title, germConfiguration, fishHook, hook);
     }
 
     public static void setGermConfiguration(ConfigurationSection configurationSection) {
@@ -69,7 +74,7 @@ public class FishingScreen extends GermGuiScreen {
         return "Fishing-Screen-" + player.getUniqueId();
     }
 
-    public void loadData(FishDTO fishDTO, FishingRodDTO fishingRodDTO) {
+    public void loadData(FishAI fishAI, FishingRod fishingRod, ScreenDos screenDos) {
         Map<String, Object> data = new HashMap<>();
 
         Map<String, Object> dataMap = getOptions().getDataMap();
@@ -90,9 +95,9 @@ public class FishingScreen extends GermGuiScreen {
             data.put("progress_bar_offset", 0);
         }
 
-        data.put("fishDTO", fishDTO);
-        data.put("fishingRodDTO", fishingRodDTO);
-        data.put("screenDos", event.getScreendos());
+        data.put("fishDTO", fishAI);
+        data.put("fishingRodDTO", fishingRod);
+        data.put("screenDos", screenDos);
 
         getOptions().setData(data);
     }
@@ -107,8 +112,13 @@ public class FishingScreen extends GermGuiScreen {
     public void caughtFish(Map<String, Object> contentMap, Map<String, Object> responseMap) {
         boolean perfect = contentMap.get("perfect") != null && (boolean) contentMap.get("perfect");
 
-        event.setState(StardewValleyPlayerFishingEvent.State.CAUGHT_FISH);
-        event.setPerfect(perfect);
+        // Call event
+        SVFishCaughtEvent event = new SVFishCaughtEvent(
+                getPlayer(),
+                fishHook,
+                fishHook.selectLoots(),
+                perfect
+        );
 
         Bukkit.getPluginManager().callEvent(event);
 
@@ -119,18 +129,18 @@ public class FishingScreen extends GermGuiScreen {
 
         if (StardewValleyFishing.settings().verbose) {
             StardewValleyFishing.logger().info("Player " +
-                    getPlayer().getName() + " caught " + event.getCaughtItems().size() +
+                    getPlayer().getName() + " caught " + event.getLoots().size() +
                     " items with perfect " + perfect + " status after " + (System.currentTimeMillis() - startTime) + "ms");
         }
 
         // Run on main thread
         Bukkit.getScheduler().runTask(StardewValleyFishing.instance, () -> {
-            FishingManager.setFishingTime(hook, 999); // Set and value and pull the rod
+            FishingStateManager.setFishingTime(craftHook, 999); // Set and value and pull the rod
 
-            hook.j();
+            craftHook.j();
 
-            for (ItemStack fish : event.getCaughtItems()) {
-                getPlayer().getInventory().addItem(fish);
+            for (FishingLoot loot : event.getLoots()) {
+                loot.spawn(craftHook.getBukkitEntity(), getPlayer());
             }
 
             close();
@@ -138,14 +148,14 @@ public class FishingScreen extends GermGuiScreen {
     }
 
     public void attemptFailed(Map<String, Object> contentMap, Map<String, Object> responseMap) {
+        SVFishEscapedEvent event = new SVFishEscapedEvent(getPlayer(), fishHook);
+
+        Bukkit.getPluginManager().callEvent(event);
         if (StardewValleyFishing.settings().verbose) {
             StardewValleyFishing.logger().info("Player " +
                     getPlayer().getName() + " failed to catch fish after " +
                     (System.currentTimeMillis() - startTime) + "ms");
         }
-        event.setState(StardewValleyPlayerFishingEvent.State.FAILED_ATTEMPT);
-
-        Bukkit.getPluginManager().callEvent(event);
 
         close();
     }

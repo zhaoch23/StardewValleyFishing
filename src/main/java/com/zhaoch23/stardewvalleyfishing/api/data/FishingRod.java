@@ -1,6 +1,6 @@
-package com.zhaoch23.stardewvalleyfishing.api;
+package com.zhaoch23.stardewvalleyfishing.api.data;
 
-public class FishingRodDTO {
+public class FishingRod {
     double max_vel = 10.0;
     double acc = 0.5;
     double gravity = 0.5;

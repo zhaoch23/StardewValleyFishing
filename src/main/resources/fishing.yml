@@ -63,7 +63,7 @@ fishing-screen:
             endU: '%t_w_textures/fishing/fish.png%/2'
             endV: '%t_h_textures/fishing/fish.png%'
 
-          texture_box: # TODO
+          treasure_box: # TODO
             type: texture
             enable: false
             path: local<->textures/fishing/box.png

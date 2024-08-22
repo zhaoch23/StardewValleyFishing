@@ -1,4 +1,4 @@
-package com.zhaoch23.stardewvalleyfishing.api;
+package com.zhaoch23.stardewvalleyfishing.api.data;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,7 @@ public class ScreenDos {
 
     public final List<String> screen_open;
     public final List<String> screen_close;
+    public final List<String> pulling_rod;
     public final List<String> releasing_rod;
     public final List<String> hooking_fish;
     public final List<String> fish_caught;
@@ -15,6 +16,7 @@ public class ScreenDos {
 
     public ScreenDos(List<String> screen_open,
                      List<String> screen_close,
+                     List<String> pulling_rod,
                      List<String> releasing_rod,
                      List<String> hooking_fish,
                      List<String> fish_caught,
@@ -22,6 +24,7 @@ public class ScreenDos {
                      List<String> fish_escaped) {
         this.screen_open = screen_open;
         this.screen_close = screen_close;
+        this.pulling_rod = pulling_rod;
         this.releasing_rod = releasing_rod;
         this.hooking_fish = hooking_fish;
         this.fish_caught = fish_caught;
@@ -33,6 +36,7 @@ public class ScreenDos {
         return new ScreenDos(
                 new ArrayList<>(screen_open),
                 new ArrayList<>(screen_close),
+                new ArrayList<>(pulling_rod),
                 new ArrayList<>(releasing_rod),
                 new ArrayList<>(hooking_fish),
                 new ArrayList<>(fish_caught),

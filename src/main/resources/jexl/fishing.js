@@ -7,6 +7,8 @@ function options_methods() {
     var Keyboard = Utils.forClass("org.lwjgl.input.Keyboard");
     var Mouse = Utils.forClass("org.lwjgl.input.Mouse");
 
+    var PROGRESS_MAX = 200;
+
     var GeometricRV = (p) => {
         let self = {
             "p": p,
@@ -102,8 +104,11 @@ function options_methods() {
             let acc = is_pulling ? -1 * self.gravity : self.acc;
             self.vel = Math.min(Math.max(self.vel + acc, -1 * self.max_vel), self.max_vel);
             self.pos = Math.min(Math.max(self.pos + self.vel, 0), self.fishing_bar_height);
-            if (self.pos == self.fishing_bar_height || self.pos == 0) {
-                // reset velocity
+            if (self.pos == self.fishing_bar_height) {
+                // elastic collision
+                self.vel = -0.5 * self.vel;
+            } else  if (self.pos == 0) {
+                // inelastic collision
                 self.vel = 0.0;
             }
             return self.pos;
@@ -184,7 +189,7 @@ function options_methods() {
 
                 GuiProxy.runDos(self.screen_dos['hooking_fish']);
 
-                if (self.progress >= 100) {
+                if (self.progress >= PROGRESS_MAX) {
                     // Fish is caught
                     // Log.chat("fish caught");
                     if (self.perfect) {
@@ -216,7 +221,7 @@ function options_methods() {
                 }
             }
 
-            self.progress_bar_widget.setHeight(self.progress * self.progress_bar_height / 100);
+            self.progress_bar_widget.setHeight(self.progress * self.progress_bar_height / PROGRESS_MAX);
             self.progress_bar_widget.setLocationY(self.progress_bar_height - self.progress_bar_widget.getHeight());
 
             self.rod_widget.setLocationY(rod_pos);
@@ -235,7 +240,7 @@ function options_tickScript() {
 }
 
 function options_dataScript() {
-    Log.chat("{}", dataMap);
+    // Log.chat("{}", dataMap);
     if (dataMap.containsKey("fishing_bar_height")) {
         FishingService().preinit();
     }

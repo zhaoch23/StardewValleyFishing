@@ -1,11 +1,13 @@
 stardew-valley-fishing:
   # 玩家的钓鱼等级。使用
   # 使用“lore”会自动读取鱼竿上的 “渔力 <等级>”或者 “Fishing Power <等级>”。
-  # 使用其他则会尝试读取PAPI变量。如 “%player_fishing_level%”。
+  # 使用其他则会尝试读取PAPI变量。如 “%svf_test_fishing_power%”。
   # 推荐的钓鱼等级是 0 - 100之内。等级越高，鱼干的大小越大。
   fishing-power: "lore"
   # 使用默认的生物群系配置
-  use-default-fish-setup: true
+  use-biome-scheme-setup: true
+  # 启用PlaceholderAPI表达式，可能会降低性能
+  enable-placeholder-expression: true
   # DEBUG信息
   verbose: true
 
@@ -27,7 +29,7 @@ stardew-valley-fishing:
     releasing-rod: [ ]
     # 绿条与鱼重合时（每tick播放）
     hooking-fish:
-      - 'playSound<->minecraft:block.wooden_button.click_on'
+      - 'playSound<->minecraft:block.note.guitar'
     # 钓鱼成功
     fish-caught:
       - "message<->&a你钓到了一条鱼！"

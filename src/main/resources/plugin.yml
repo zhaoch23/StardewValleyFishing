@@ -4,6 +4,7 @@ main: com.zhaoch23.stardewvalleyfishing.StardewValleyFishing
 
 depend:
   - GermPlugin
+  - PlaceholderAPI
 
 softdepend:
   - MythicMobs

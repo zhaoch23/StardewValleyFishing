@@ -1,6 +1,6 @@
 package com.zhaoch23.stardewvalleyfishing;
 
-import com.zhaoch23.stardewvalleyfishing.api.ScreenDos;
+import com.zhaoch23.stardewvalleyfishing.api.data.ScreenDos;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
@@ -10,12 +10,14 @@ public class Settings {
     public ScreenDos screenDos;
     public final WaitingTime waitingTime = new WaitingTime();
     public String fishingPower = "lore";
-    public boolean useDefaultFishSetup = true;
+    public boolean useBiomeSchemeSetup = true;
     public boolean verbose = false;
+    public boolean enablePlaceholderExpression = true;
 
     public void loadConfig(ConfigurationSection configurationSection) {
         fishingPower = configurationSection.getString("fishing-power", "lore");
-        useDefaultFishSetup = configurationSection.getBoolean("use-default-fish-setup", true);
+        useBiomeSchemeSetup = configurationSection.getBoolean("use-biome-scheme-setup", true);
+        enablePlaceholderExpression = configurationSection.getBoolean("enable-placeholder-expression", true);
         verbose = configurationSection.getBoolean("verbose", true);
 
         waitingTime.loadConfig(configurationSection.getConfigurationSection("waiting-time"));
@@ -26,6 +28,8 @@ public class Settings {
                         screenDosSection.getStringList("screen-open") : new ArrayList<>(),
                 screenDosSection.contains("screen-close") ?
                         screenDosSection.getStringList("screen-close") : new ArrayList<>(),
+                screenDosSection.contains("pulling-rod") ?
+                        screenDosSection.getStringList("pulling-rod") : new ArrayList<>(),
                 screenDosSection.contains("releasing-rod") ?
                         screenDosSection.getStringList("releasing-rod") : new ArrayList<>(),
                 screenDosSection.contains("hooking-fish") ?

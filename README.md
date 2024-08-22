@@ -10,7 +10,7 @@
 3. 鱼有**超高的AI自定义性**
 4. 可以**自由定义生物群系**的鱼
 5. 兼容玩家**自定义钓鱼等级**
-6. 兼容MythicItems和兼容萌芽的自定义Dos
+6. 兼容PAPI, MythicMobs, MythicItems和萌芽Dos
 7. 超高的二次开发性，请参考[API](https://github.com/zhaoch23/StardewValleyFishing/tree/main/src/main/java/com/zhaoch23/stardewvalleyfishing/api)
 
 作者QQ：_1149470063_
@@ -31,10 +31,11 @@
 
 ## 更新计划
 - [x] 钓鱼GUI交互鱼动画
-- [x] 鱼的AI自定义，请参考`biome/plains.yml`中的`fish_ai`部分
+- [x] 鱼的AI自定义，请参考`biome/plains.yml`部分
 - [x] 自定义生物群系的鱼
 - [x] 兼容MythicItems
 - [x] 钓鱼等级
 - [x] 音效与Dos
+- [x] 钓上MythicMob!!
 - [ ] 宝箱系统
 - [ ] 鱼饵与钓鱼工具

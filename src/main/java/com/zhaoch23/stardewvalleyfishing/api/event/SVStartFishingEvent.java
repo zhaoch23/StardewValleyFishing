@@ -1,32 +1,28 @@
 package com.zhaoch23.stardewvalleyfishing.api.event;
 
+import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
 
-public class StardewValleyPlayerStartFishingEvent extends PlayerEvent implements Cancellable {
+public class SVStartFishingEvent extends PlayerEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
+
+    @Getter
     private int biteTimeMax = 300;
+    @Getter
     private int biteTimeMin = 100;
 
     private boolean cancelled = false;
 
-    public StardewValleyPlayerStartFishingEvent(Player who) {
+    public SVStartFishingEvent(Player who) {
         super(who);
-    }
-
-    public int getBiteTimeMax() {
-        return biteTimeMax;
     }
 
     public void setBiteTimeMax(int biteTimeMax) {
         assert biteTimeMax >= 0;
         this.biteTimeMax = biteTimeMax;
-    }
-
-    public int getBiteTimeMin() {
-        return biteTimeMin;
     }
 
     public void setBiteTimeMin(int biteTimeMin) {

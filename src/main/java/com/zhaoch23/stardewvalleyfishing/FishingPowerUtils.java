@@ -1,7 +1,6 @@
-package com.zhaoch23.stardewvalleyfishing.common;
+package com.zhaoch23.stardewvalleyfishing;
 
-import com.zhaoch23.stardewvalleyfishing.StardewValleyFishing;
-import com.zhaoch23.stardewvalleyfishing.api.FishingRodDTO;
+import com.zhaoch23.stardewvalleyfishing.api.data.FishingRod;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -50,7 +49,18 @@ public class FishingPowerUtils {
     }
 
 
-    public static int getLoreFishingPower(Player player) {
+    /**
+     * Get the fishing power of the player.
+     *
+     * <p>
+     * If the fishing power is set to lore, then the fishing power
+     * will be extracted from the lore of the fishing rod. Otherwise,
+     * the fishing power will be parsed from the configuration.
+     *
+     * @param player the player
+     * @return the fishing power
+     */
+    public static int getFishingPower(Player player) {
         Objects.requireNonNull(player);
         int fishingPower = 0;
         // Setup fishing rod
@@ -63,10 +73,10 @@ public class FishingPowerUtils {
 
             fishingPower = FishingPowerUtils.getFromItemStackLore(item);
         } else {
-            PlaceholderAPI.setPlaceholders(player,
+            String stringPower = PlaceholderAPI.setPlaceholders(player,
                     StardewValleyFishing.settings().fishingPower);
             try {
-                fishingPower = Integer.parseInt(StardewValleyFishing.settings().fishingPower);
+                fishingPower = Integer.parseInt(stringPower);
             } catch (NumberFormatException e) {
                 StardewValleyFishing.logger().severe("Failed to parse fishing power " +
                         StardewValleyFishing.settings().fishingPower);
@@ -75,11 +85,17 @@ public class FishingPowerUtils {
         return fishingPower;
     }
 
-    public static FishingRodDTO setupFishingDTO(int fishingPower) {
-        FishingRodDTO finshingRodDTO = new FishingRodDTO();
-        finshingRodDTO.setPullingAcceleration(Math.min(3.0, 0.5 + fishingPower / 100.0));
+    /**
+     * Set up a default fishing rod DTO.
+     *
+     * @param fishingPower the fishing power
+     * @return the fishing rod DTO
+     */
+    public static FishingRod setupFishingDTO(int fishingPower) {
+        FishingRod finshingRodDTO = new FishingRod();
+        finshingRodDTO.setPullingAcceleration(Math.min(1.0, 0.5 + fishingPower / 100.0));
         finshingRodDTO.setGravity(0.5);
-        finshingRodDTO.setScale(1.5 + fishingPower / 100.0);
+        finshingRodDTO.setScale(2.0 + fishingPower / 50.0);
         return finshingRodDTO;
     }
 
