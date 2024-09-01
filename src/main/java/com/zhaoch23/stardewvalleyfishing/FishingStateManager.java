@@ -3,6 +3,7 @@ package com.zhaoch23.stardewvalleyfishing;
 import com.zhaoch23.stardewvalleyfishing.api.SVFishHook;
 import com.zhaoch23.stardewvalleyfishing.api.event.SVFishBiteEvent;
 import com.zhaoch23.stardewvalleyfishing.api.event.SVStartFishingEvent;
+import com.zhaoch23.stardewvalleyfishing.gui.FishingScreen;
 import net.minecraft.server.v1_12_R1.EntityFishingHook;
 import org.bukkit.block.Biome;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftFish;
@@ -50,7 +51,7 @@ public class FishingStateManager implements Listener {
         int min = StardewValleyFishing.settings().waitingTime.min;
         int max = StardewValleyFishing.settings().waitingTime.max;
         if (StardewValleyFishing.settings().waitingTime.fishingPowerDiscount > 0) {
-            int fishingPower = FishingPowerUtils.getFishingPower(event.getPlayer());
+            int fishingPower = FishingAttributesUtils.getFishingPower(event.getPlayer());
             min = (int) (StardewValleyFishing.settings().waitingTime.min * (1 - fishingPower * StardewValleyFishing.settings().waitingTime.fishingPowerDiscount));
             max = (int) (StardewValleyFishing.settings().waitingTime.max * (1 - fishingPower * StardewValleyFishing.settings().waitingTime.fishingPowerDiscount));
             if (max < 0) {
@@ -113,13 +114,13 @@ public class FishingStateManager implements Listener {
         }
 
         // Setup fishing rod
-        int fishingPower = FishingPowerUtils.getFishingPower(event.getPlayer());
+        int fishingPower = FishingAttributesUtils.getFishingPower(event.getPlayer());
 
         SVFishBiteEvent customEvent = new SVFishBiteEvent(
                 player,
                 StardewValleyFishing.settings().screenDos,
                 fishHook,
-                FishingPowerUtils.setupFishingDTO(fishingPower)
+                FishingAttributesUtils.setupFishingDTO(fishingPower)
         );
 
         event.setCancelled(true); // Pause the event

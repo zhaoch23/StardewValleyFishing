@@ -1,5 +1,6 @@
 package com.zhaoch23.stardewvalleyfishing;
 
+import com.germ.germplugin.api.util.ItemUtil;
 import com.zhaoch23.stardewvalleyfishing.api.data.FishingRod;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Material;
@@ -8,10 +9,54 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
-public class FishingPowerUtils {
+public class FishingAttributesUtils {
+
+public static double getFirstNumber(String str) {
+    int start = -1;
+    int end = str.length();
+    boolean hasDot = false;
+
+    for (int i = 0; i < str.length(); i++) {
+        char c = str.charAt(i);
+        if (Character.isDigit(c)) {
+            if (start == -1) start = i;
+        } else if (c == '.' && !hasDot) {
+            hasDot = true;
+        } else if (start != -1) {
+            end = i;
+            break;
+        }
+    }
+
+    if (start == -1) return 0;
+    return Double.parseDouble(str.substring(start, end));
+}
+
+    public static Map<String, Double> getAttributesFromItemStack(ItemStack itemStack, List<String> attributes) {
+        Map<String, Double> attributeMap = new HashMap<>();
+
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta != null) {
+            List<String> lore = itemMeta.getLore();
+            if (lore != null) {
+                for (String line : lore) {
+                    for (String attribute : attributes) {
+                        if (line.contains(attribute)) {
+                            String colorlessLine = ItemUtil.clearNumberColor(line);
+                            double value = getFirstNumber(colorlessLine);
+                            attributeMap.put(attribute, value);
+                        }
+                    }
+                }
+            }
+        }
+        return attributeMap;
+    }
 
     public static int getFromItemStackLore(ItemStack itemStack) {
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -21,19 +66,8 @@ public class FishingPowerUtils {
             if (lore != null) {
                 for (String line : lore) {
                     if (line.contains("Fishing Power") || line.contains("渔力")) {
-                        int index = 0;
-                        for (int i = 0; i < line.length(); i++) {
-                            if (line.charAt(index) == '&' || line.charAt(index) == '§') {
-                                index += 1;
-                                continue;
-                            }
-                            if (Character.isDigit(line.charAt(i))) {
-                                index = i;
-                                break;
-                            }
-                        }
-                        line = line.substring(index);
-                        String[] split = line.split("(?=\\D)");
+                        String colorlessLine = ItemUtil.clearNumberColor(line);
+                        String[] split = colorlessLine.split("(?=\\D)");
                         if (split.length >= 1) {
                             num = split[0];
                         }
@@ -71,7 +105,7 @@ public class FishingPowerUtils {
                 item = playerInventory.getItemInOffHand();
             }
 
-            fishingPower = FishingPowerUtils.getFromItemStackLore(item);
+            fishingPower = FishingAttributesUtils.getFromItemStackLore(item);
         } else {
             String stringPower = PlaceholderAPI.setPlaceholders(player,
                     StardewValleyFishing.settings().fishingPower);

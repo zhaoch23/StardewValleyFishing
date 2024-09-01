@@ -1,8 +1,10 @@
-package com.zhaoch23.stardewvalleyfishing;
+package com.zhaoch23.stardewvalleyfishing.gui;
 
 import com.germ.germplugin.api.dynamic.gui.GermGuiScreen;
 import com.germ.germplugin.api.dynamic.gui.GuiManager;
 import com.germ.germplugin.api.dynamic.gui.IGuiScreenHandler;
+import com.zhaoch23.stardewvalleyfishing.FishingStateManager;
+import com.zhaoch23.stardewvalleyfishing.StardewValleyFishing;
 import com.zhaoch23.stardewvalleyfishing.api.data.FishAI;
 import com.zhaoch23.stardewvalleyfishing.api.data.FishingRod;
 import com.zhaoch23.stardewvalleyfishing.api.SVFishHook;
@@ -13,7 +15,6 @@ import com.zhaoch23.stardewvalleyfishing.api.loot.FishingLoot;
 import net.minecraft.server.v1_12_R1.EntityFishingHook;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -22,7 +23,7 @@ import java.util.function.BiConsumer;
 
 public class FishingScreen extends GermGuiScreen {
 
-    public static ConfigurationSection germConfiguration;
+    public static ConfigurationSection screenConfiguration;
 
     public final SVFishHook fishHook;
 
@@ -63,11 +64,11 @@ public class FishingScreen extends GermGuiScreen {
             GuiManager.getOpenedGui(player, title).close();
         }
 
-        return new FishingScreen(title, germConfiguration, fishHook, hook);
+        return new FishingScreen(title, screenConfiguration, fishHook, hook);
     }
 
-    public static void setGermConfiguration(ConfigurationSection configurationSection) {
-        germConfiguration = configurationSection;
+    public static void setScreenConfiguration(ConfigurationSection configurationSection) {
+        screenConfiguration = configurationSection;
     }
 
     public static String getTitle(Player player) {

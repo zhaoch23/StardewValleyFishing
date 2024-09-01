@@ -2,6 +2,8 @@ package com.zhaoch23.stardewvalleyfishing;
 
 import com.germ.germplugin.api.GermSrcManager;
 import com.germ.germplugin.api.RootType;
+import com.zhaoch23.stardewvalleyfishing.gui.FishingScreen;
+import com.zhaoch23.stardewvalleyfishing.gui.TackleScreen;
 import com.zhaoch23.stardewvalleyfishing.hook.PlaceholderAPIHook;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -19,6 +21,8 @@ public final class StardewValleyFishing extends JavaPlugin implements CommandExe
     public final Settings settings = new Settings();
 
     public final FishingSchemeManager fishingSchemeManager = new FishingSchemeManager();
+    public final FishingRodTacklesManager fishingRodTacklesManager = new FishingRodTacklesManager();
+
     public final Random random = new Random();
     public FishingStateManager fishingManager = new FishingStateManager();
 
@@ -39,6 +43,7 @@ public final class StardewValleyFishing extends JavaPlugin implements CommandExe
         instance = this;
 
         getServer().getPluginManager().registerEvents(fishingManager, this);
+        getServer().getPluginManager().registerEvents(fishingRodTacklesManager, this);
 
         // Register command
         getCommand("stardewvalleyfishing").setExecutor(this);
@@ -70,10 +75,15 @@ public final class StardewValleyFishing extends JavaPlugin implements CommandExe
         jexl.mkdirs();
         GermSrcManager.getGermSrcManager().registerSrcFolder(RootType.JEXL, jexl);
         saveResource("jexl/fishing.js", true);
-        saveResource("fishing.yml", false);
-        YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "fishing.yml"));
-        FishingScreen.setGermConfiguration(
+        saveResource("gui/fishing.yml", false);
+        saveResource("gui/tackle.yml", false);
+        YamlConfiguration yamlConfiguration =
+                YamlConfiguration.loadConfiguration(new File(getDataFolder(), "gui/fishing.yml"));
+        FishingScreen.setScreenConfiguration(
                 yamlConfiguration.getConfigurationSection("fishing-screen")
+        );
+        TackleScreen.setScreenConfiguration(
+                yamlConfiguration.getConfigurationSection("tackle-screen")
         );
 
 

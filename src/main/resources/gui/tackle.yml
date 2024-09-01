@@ -1,0 +1,34 @@
+tackle-screen:
+  options:
+    startX: w*0
+    startY: h*0
+    startZ: '10'
+    dropCursorItem: false
+
+  canvas:
+    type: canvas
+    locationX: w / 2
+    locationY: h / 2
+
+    relativeParts:
+      _slot_tackle:
+        locationX: -18
+        locationY: 0
+        type: slot
+        size: 36
+        itemSize: 36
+        sync: true
+        invalid: false
+        interact: true
+        identity: 'svfishing_tackle'
+      _slot_bait:
+        locationX: 18
+        locationY: 0
+        type: slot
+        size: 36
+        itemSize: 36
+        sync: true
+        invalid: false
+        interact: true
+
+        identity: 'svfishing_tackle'
